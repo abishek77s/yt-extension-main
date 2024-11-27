@@ -4,6 +4,21 @@ const SELECTORS = {
   VIDEO_LINK: '.video-url-fadeable.style-scope.ytcp-video-info a'
 };
 
+const BUTTON_STATES = {
+  INITIAL: {
+    text: 'Generate',
+    icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>'
+  },
+  LOADING: {
+    text: 'Loading...',
+    icon: '<svg class="spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>'
+  },
+  REGENERATE: {
+    text: 'Regenerate',
+    icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 12c0-4.4 3.6-8 8-8 3.3 0 6.2 2 7.4 5M22 12c0 4.4-3.6 8-8 8-3.3 0-6.2-2-7.4-5"></path></svg>'
+  }
+};
+
 const BUTTON_STYLES = `
   display: inline-flex;
   align-items: center;
@@ -26,37 +41,28 @@ const CONTAINER_STYLES = `
   gap: 4px;
 `;
 
-function createButton(text) {
+function createButton(contentType) {
   const button = document.createElement('button');
-  button.innerHTML = `
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
-    ${text}
-  `;
+  const state = BUTTON_STATES.INITIAL;
+  button.innerHTML = `${state.icon} ${state.text} ${contentType}`;
   button.style.cssText = BUTTON_STYLES;
+  button.dataset.contentType = contentType;
+  button.dataset.state = 'initial';
   return button;
+}
+
+function updateButtonState(button, state) {
+  const contentType = button.dataset.contentType;
+  const buttonState = BUTTON_STATES[state];
+  button.innerHTML = `${buttonState.icon} ${buttonState.text} ${contentType}`;
+  button.dataset.state = state.toLowerCase();
+  button.disabled = state === 'LOADING';
 }
 
 function createButtonContainer() {
   const container = document.createElement('div');
   container.style.cssText = CONTAINER_STYLES;
   return container;
-}
-
-function setButtonLoading(button, isLoading) {
-  const originalContent = button.innerHTML;
-
-  if (isLoading) {
-    button.disabled = true;
-    button.innerHTML = `
-      <svg class="spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
-      </svg>
-      Loading...
-    `;
-  } else {
-    button.disabled = false;
-    button.innerHTML = originalContent;
-  }
 }
 
 function showSuccessMessage(element, message, isError = false) {
@@ -80,12 +86,13 @@ async function handleGeneration(button, contentType) {
   console.log(`Starting generation for ${contentType}`);
 
   try {
-    setButtonLoading(button, true);
+    updateButtonState(button, 'LOADING');
     
     const videoLink = getVideoLink();
     if (!videoLink) {
       console.error('No video link found');
       showSuccessMessage(button, 'Could not find video link', true);
+      updateButtonState(button, 'INITIAL');
       return;
     }
 
@@ -143,19 +150,22 @@ async function handleGeneration(button, contentType) {
         
         inputElement.focus();
         inputElement.blur();
+        
+        updateButtonState(button, 'REGENERATE');
       } else {
         console.error(`Could not find ${contentType} input element with selector:`, inputSelector);
         showSuccessMessage(button, `Error: Could not find ${contentType} input field`, true);
+        updateButtonState(button, 'INITIAL');
       }
     } else {
       console.error(`Error generating ${contentType}:`, response.error);
       showSuccessMessage(button, `Error generating ${contentType}`, true);
+      updateButtonState(button, 'INITIAL');
     }
   } catch (error) {
     console.error(`Unhandled error generating ${contentType}:`, error);
     showSuccessMessage(button, `Unexpected error generating ${contentType}`, true);
-  } finally {
-    setButtonLoading(button, false);
+    updateButtonState(button, 'INITIAL');
   }
 }
 
@@ -165,15 +175,15 @@ function injectControls() {
 
   if (titleInput && descriptionInput) {
     const titleContainer = createButtonContainer();
-    const titleButton = createButton('Generate Title');
+    const titleButton = createButton('Title');
     titleButton.addEventListener('click', () => handleGeneration(titleButton, 'Title'));
 
     const descriptionContainer = createButtonContainer();
-    const descriptionButton = createButton('Generate Description');
+    const descriptionButton = createButton('Description');
     descriptionButton.addEventListener('click', () => handleGeneration(descriptionButton, 'Description'));
 
     const tagsContainer = createButtonContainer();
-    const tagsButton = createButton('Generate Tags');
+    const tagsButton = createButton('Tags');
     tagsButton.addEventListener('click', () => handleGeneration(tagsButton, 'Tags'));
 
     titleContainer.appendChild(titleButton);
@@ -208,6 +218,13 @@ styleSheet.textContent = `
   }
   .spin {
     animation: spin 1s linear infinite;
+  }
+  button[data-state="regenerate"] {
+    background: #34a853;
+  }
+  button[data-state="loading"] {
+    background: #9aa0a6;
+    cursor: not-allowed;
   }
 `;
 document.head.appendChild(styleSheet);
