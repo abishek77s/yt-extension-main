@@ -8,7 +8,8 @@
     "storage"
   ],
   "host_permissions": [
-    "*://studio.youtube.com/*"
+    "*://studio.youtube.com/*",
+    "http://127.0.0.1:5000/*"
   ],
   "action": {
     "default_title": "YT Studio Enhancer"

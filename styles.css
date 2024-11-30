@@ -11,18 +11,21 @@
   right: 2px;
   display: flex;
   justify-content: space-between;
-
   align-items: center;
   background-color: rgba(6, 6, 6, 0.9);
   border-radius: 60px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   overflow: hidden;
   transition: all 0.3s ease-in-out;
- 
   padding: 2px;
   z-index: 1000;
 }
 
+/* Ensure proper positioning for description toolbar */
+#description-textarea .toolbar {
+  top: auto;
+  bottom: 1px;
+}
 
 .toolbar-button {
   width: 28px;
@@ -57,8 +60,6 @@
   opacity: 1;
   margin: 2px 0;
 }
-
-
 
 .toolbar-button[data-state="loading"] {
   cursor: not-allowed;

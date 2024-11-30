@@ -11,49 +11,31 @@ function injectControls() {
     titleInputContainer.style.position = 'relative';
     descInputContainer.style.position = 'relative';
 
-    const { container: titleContainer, innerContainer: titleInner } = createButtonContainer();
-    const titleButton = createButton('Title');
-    const enhanceButton = createButton('Enhance', true);
-    const promptButton = createButton('Prompt', true);
-
-    titleButton.addEventListener('click', () => handleGeneration(titleButton, 'Title'));
-    enhanceButton.addEventListener('click', () => handleGeneration(enhanceButton, 'Enhance'));
-    promptButton.addEventListener('click', () => handleGeneration(promptButton, 'Prompt'));
-
-    titleInner.appendChild(titleButton);
-    titleInner.appendChild(enhanceButton);
-    titleInner.appendChild(promptButton);
-
-    const { container: descContainer, innerContainer: descInner } = createButtonContainer();
-    const descButton = createButton('Description');
-    const descEnhanceButton = createButton('Enhance', true);
-    const descPromptButton = createButton('Prompt', true);
-
-    descButton.addEventListener('click', () => handleGeneration(descButton, 'Description'));
-    descEnhanceButton.addEventListener('click', () => handleGeneration(descEnhanceButton, 'Enhance'));
-    descPromptButton.addEventListener('click', () => handleGeneration(descPromptButton, 'Prompt'));
-
-    descInner.appendChild(descButton);
-    descInner.appendChild(descEnhanceButton);
-    descInner.appendChild(descPromptButton);
-
-    const { container: tagsContainer, innerContainer: tagsInner } = createButtonContainer();
-    const tagsButton = createButton('Tags');
-    const tagsEnhanceButton = createButton('Enhance', true);
-    const tagsPromptButton = createButton('Prompt', true);
-
-    tagsButton.addEventListener('click', () => handleGeneration(tagsButton, 'Tags'));
-    tagsEnhanceButton.addEventListener('click', () => handleGeneration(tagsEnhanceButton, 'Enhance'));
-    tagsPromptButton.addEventListener('click', () => handleGeneration(tagsPromptButton, 'Prompt'));
-
-    tagsInner.appendChild(tagsButton);
-    tagsInner.appendChild(tagsEnhanceButton);
-    tagsInner.appendChild(tagsPromptButton);
-
-    titleInputContainer.appendChild(titleContainer);
-    descInputContainer.appendChild(descContainer);
-    descInputContainer.appendChild(tagsContainer);
+    injectToolbar(titleInputContainer, 'Title');
+    injectToolbar(descInputContainer, 'Description');
   }
+}
+
+function injectToolbar(container, contentType) {
+  const { container: toolbarContainer, innerContainer } = createButtonContainer();
+  
+  // Create main generate button
+  const generateButton = createButton(contentType);
+  generateButton.addEventListener('click', () => handleGeneration(generateButton, contentType, 'generate'));
+  
+  // Create enhance button
+  const enhanceButton = createButton(contentType, true);
+  enhanceButton.addEventListener('click', () => handleGeneration(enhanceButton, contentType, 'enhance'));
+  
+  // Create prompt button
+  const promptButton = createButton(contentType, true);
+  promptButton.addEventListener('click', () => handleGeneration(promptButton, contentType, 'prompt'));
+  
+  innerContainer.appendChild(generateButton);
+  innerContainer.appendChild(enhanceButton);
+  innerContainer.appendChild(promptButton);
+  
+  container.appendChild(toolbarContainer);
 }
 
 // Initialize mutation observer to detect when YouTube Studio loads

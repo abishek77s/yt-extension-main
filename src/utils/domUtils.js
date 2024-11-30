@@ -1,5 +1,6 @@
-// DOM manipulation utilities
-function createButton(contentType, isSecondary = false) {
+import { BUTTON_STATES } from '../constants/buttonStates';
+
+export function createButton(contentType, isSecondary = false) {
   const button = document.createElement('button');
   const state = BUTTON_STATES.INITIAL;
   button.innerHTML = state.icon;
@@ -10,7 +11,7 @@ function createButton(contentType, isSecondary = false) {
   return button;
 }
 
-function updateButtonState(button, state) {
+export function updateButtonState(button, state) {
   const contentType = button.dataset.contentType;
   const buttonState = BUTTON_STATES[state];
   button.innerHTML = buttonState.icon;
@@ -19,7 +20,7 @@ function updateButtonState(button, state) {
   button.title = `${buttonState.text} ${contentType}`;
 }
 
-function createButtonContainer() {
+export function createButtonContainer() {
   const container = document.createElement('div');
   container.className = 'toolbar';
   
@@ -30,7 +31,7 @@ function createButtonContainer() {
   return { container, innerContainer };
 }
 
-function showSuccessMessage(element, message, isError = false) {
+export function showSuccessMessage(element, message, isError = false) {
   const successDiv = document.createElement('div');
   successDiv.style.cssText = `
     color: ${isError ? '#d32f2f' : '#0f9d58'};
@@ -40,9 +41,4 @@ function showSuccessMessage(element, message, isError = false) {
   successDiv.textContent = message;
   element.parentElement.appendChild(successDiv);
   setTimeout(() => successDiv.remove(), 3000);
-}
-
-function getVideoLink() {
-  const linkElement = document.querySelector(SELECTORS.VIDEO_LINK);
-  return linkElement ? linkElement.href : null;
 }

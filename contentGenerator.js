@@ -1,64 +1,10 @@
-async function handleGeneration(button, contentType) {
-  console.log(`Starting generation for ${contentType}`);
-
-  try {
-    updateButtonState(button, 'LOADING');
-    
-    const videoLink = getVideoLink();
-    if (!videoLink) {
-      console.error('No video link found');
-      showSuccessMessage(button, 'Could not find video link', true);
-      updateButtonState(button, 'INITIAL');
-      return;
-    }
-
-    const choice = getChoiceForContentType(contentType);
-    const response = await chrome.runtime.sendMessage({
-      type: 'GENERATE_CONTENT',
-      data: {
-        contentType,
-        prompt: videoLink,
-        choice
-      }
-    });
-
-    handleGenerationResponse(response, button, contentType);
-  } catch (error) {
-    console.error(`Unhandled error generating ${contentType}:`, error);
-    showSuccessMessage(button, `Unexpected error generating ${contentType}`, true);
-    updateButtonState(button, 'INITIAL');
-  }
-}
-
+// Content generation handling
 function getChoiceForContentType(contentType) {
   switch (contentType.toLowerCase()) {
     case 'title': return 1;
     case 'description': return 2;
     case 'tags': return 3;
     default: return 1;
-  }
-}
-
-function handleGenerationResponse(response, button, contentType) {
-  if (response.success) {
-    console.log(`${contentType} generated successfully:`, response.data);
-    showSuccessMessage(button, `${contentType} generated successfully!`);
-    
-    const inputSelector = contentType === 'Title' 
-      ? SELECTORS.TITLE_INPUT 
-      : SELECTORS.DESCRIPTION_INPUT;
-    
-    updateInputField(inputSelector, response.data, button, contentType);
-    
-    // Expand toolbar after successful generation
-    const toolbar = button.closest('.toolbar');
-    if (toolbar) {
-      toolbar.classList.add('expanded');
-    }
-  } else {
-    console.error(`Error generating ${contentType}:`, response.error);
-    showSuccessMessage(button, `Error generating ${contentType}`, true);
-    updateButtonState(button, 'INITIAL');
   }
 }
 
@@ -88,8 +34,63 @@ function updateInputField(selector, value, button, contentType) {
     
     updateButtonState(button, 'REGENERATE');
   } else {
-    console.error(`Could not find ${contentType} input element with selector:`, selector);
-    showSuccessMessage(button, `Error: Could not find ${contentType} input field`, true);
+    throw new Error(`Could not find ${contentType} input field`);
+  }
+}
+
+async function handleGeneration(button, contentType, action = 'generate') {
+  console.log(`Starting ${action} for ${contentType}`);
+
+  try {
+    updateButtonState(button, 'LOADING');
+    
+    const inputSelector = contentType.toLowerCase() === 'title' 
+      ? SELECTORS.TITLE_INPUT 
+      : SELECTORS.DESCRIPTION_INPUT;
+    
+    const currentContent = document.querySelector(inputSelector)?.textContent || '';
+    let messageType, data;
+
+    switch (action) {
+      case 'generate':
+        const videoLink = getVideoLink();
+        if (!videoLink) {
+          throw new Error('No video link found');
+        }
+        messageType = 'GENERATE_CONTENT';
+        data = { url: videoLink, choice: getChoiceForContentType(contentType) };
+        break;
+      
+      case 'enhance':
+        messageType = 'ENHANCE_CONTENT';
+        data = { content: currentContent, type: contentType.toLowerCase() };
+        break;
+      
+      case 'prompt':
+        messageType = 'GENERATE_PROMPT';
+        data = { content: currentContent, type: contentType.toLowerCase() };
+        break;
+      
+      default:
+        throw new Error(`Unknown action: ${action}`);
+    }
+
+    chrome.runtime.sendMessage({ type: messageType, data }, response => {
+      if (response.success) {
+        updateInputField(inputSelector, response.data, button, contentType);
+        showSuccessMessage(button, `${contentType} ${action}d successfully!`);
+        
+        const toolbar = button.closest('.toolbar');
+        if (toolbar) {
+          toolbar.classList.add('expanded');
+        }
+      } else {
+        throw new Error(response.error);
+      }
+    });
+  } catch (error) {
+    console.error(`Error ${action}ing ${contentType}:`, error);
+    showSuccessMessage(button, error.message || `Error ${action}ing ${contentType}`, true);
     updateButtonState(button, 'INITIAL');
   }
 }
