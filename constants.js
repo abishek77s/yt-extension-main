@@ -2,7 +2,11 @@
 const SELECTORS = {
   TITLE_INPUT: '#textbox.style-scope.ytcp-social-suggestions-textbox',
   DESCRIPTION_INPUT: '#description-textarea #textbox.style-scope.ytcp-social-suggestions-textbox',
-  VIDEO_LINK: '.video-url-fadeable.style-scope.ytcp-video-info a'
+  VIDEO_LINK: '.video-url-fadeable.style-scope.ytcp-video-info a',
+  SHOW_MORE_BUTTON: 'ytcp-button[id="toggle-button"]',
+  TAGS_INPUT: '#text-input.text-input.style-scope.ytcp-chip-bar',
+  TAGS_CONTAINER: '.input-container.style-scope.ytcp-video-metadata-editor-advanced',
+  TAGS_SECTION: 'ytcp-video-metadata-editor-advanced'
 };
 
 const BUTTON_STATES = {

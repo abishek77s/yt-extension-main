@@ -14,23 +14,35 @@ function updateInputField(selector, value, button, contentType) {
   if (inputElement) {
     console.log(`Setting ${contentType} input value:`, value);
     
-    inputElement.textContent = value;
-    
-    // Dispatch necessary events
-    ['input', 'change'].forEach(eventType => {
-      inputElement.dispatchEvent(new Event(eventType, { bubbles: true }));
-    });
-    
-    const inputEvent = new InputEvent('input', {
-      bubbles: true,
-      cancelable: true,
-      inputType: 'insertText',
-      data: value
-    });
-    inputElement.dispatchEvent(inputEvent);
-    
-    inputElement.focus();
-    inputElement.blur();
+    if (contentType.toLowerCase() === 'tags') {
+      // Handle tags differently - they need to be added one by one
+      const tags = value.split(',').map(tag => tag.trim());
+      tags.forEach(tag => {
+        inputElement.value = tag;
+        inputElement.dispatchEvent(new Event('input', { bubbles: true }));
+        inputElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+      });
+      inputElement.value = ''; // Clear the input after adding all tags
+    } else {
+      // Handle title and description
+      inputElement.textContent = value;
+      
+      // Dispatch necessary events
+      ['input', 'change'].forEach(eventType => {
+        inputElement.dispatchEvent(new Event(eventType, { bubbles: true }));
+      });
+      
+      const inputEvent = new InputEvent('input', {
+        bubbles: true,
+        cancelable: true,
+        inputType: 'insertText',
+        data: value
+      });
+      inputElement.dispatchEvent(inputEvent);
+      
+      inputElement.focus();
+      inputElement.blur();
+    }
     
     updateButtonState(button, 'REGENERATE');
   } else {
@@ -44,9 +56,11 @@ async function handleGeneration(button, contentType, action = 'generate') {
   try {
     updateButtonState(button, 'LOADING');
     
-    const inputSelector = contentType.toLowerCase() === 'title' 
-      ? SELECTORS.TITLE_INPUT 
-      : SELECTORS.DESCRIPTION_INPUT;
+    const inputSelector = contentType.toLowerCase() === 'tags' 
+      ? SELECTORS.TAGS_INPUT 
+      : contentType.toLowerCase() === 'title' 
+        ? SELECTORS.TITLE_INPUT 
+        : SELECTORS.DESCRIPTION_INPUT;
     
     const currentContent = document.querySelector(inputSelector)?.textContent || '';
     let messageType, data;

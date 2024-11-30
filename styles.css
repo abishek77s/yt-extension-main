@@ -27,6 +27,15 @@
   bottom: 1px;
 }
 
+/* Position the tags toolbar */
+.toolbar-wrapper .toolbar {
+  position: relative;
+  top: 0;
+  right: 0;
+  width: fit-content;
+  margin-left: auto;
+}
+
 .toolbar-button {
   width: 28px;
   height: 28px;
