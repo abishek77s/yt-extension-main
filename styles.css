@@ -7,49 +7,35 @@
 /* Toolbar styles */
 .toolbar {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 1px;
+  right: 2px;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
+
   align-items: center;
-  background-color: rgba(88, 28, 135, 0.9);
-  border-radius: 9999px;
+  background-color: rgba(6, 6, 6, 0.9);
+  border-radius: 60px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   overflow: hidden;
   transition: all 0.3s ease-in-out;
-  width: 52px;
+ 
   padding: 2px;
   z-index: 1000;
 }
 
-.toolbar.expanded {
-  width: 160px;
-  padding: 6px;
-}
-
-.toolbar-inner {
-  display: flex;
-  align-items: center;
-  transition: all 0.3s ease-in-out;
-  gap: 0;
-}
-
-.toolbar.expanded .toolbar-inner {
-  gap: 4px;
-}
 
 .toolbar-button {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   border: none;
   background-color: transparent;
   color: white;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin: 2px 0;
 }
 
 .toolbar-button:hover {
@@ -57,22 +43,22 @@
   border-radius: 8px;
 }
 
-.toolbar-button.secondary {
+.toolbar-button:not(:first-child) {
   transform: scale(0);
-  width: 0;
+  height: 0;
   opacity: 0;
+  margin: 0;
+  transition: all 0.3s ease-in-out;
 }
 
-.toolbar.expanded .toolbar-button.secondary {
+.toolbar.expanded .toolbar-button:not(:first-child) {
   transform: scale(1);
-  width: 24px;
+  height: 24px;
   opacity: 1;
+  margin: 2px 0;
 }
 
-/* Button states */
-.toolbar-button[data-state="regenerate"] {
-  background-color: rgba(255, 255, 255, 0.2);
-}
+
 
 .toolbar-button[data-state="loading"] {
   cursor: not-allowed;

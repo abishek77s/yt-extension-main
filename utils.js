@@ -45,8 +45,3 @@ function getVideoLink() {
   const linkElement = document.querySelector(SELECTORS.VIDEO_LINK);
   return linkElement ? linkElement.href : null;
 }
-
-// This function is no longer needed since we're using a separate CSS file
-function injectGlobalStyles() {
-  // No-op: styles are now loaded via manifest.json
-}
