@@ -16,16 +16,16 @@
   "content_scripts": [
     {
       "matches": ["*://studio.youtube.com/*"],
-      "js": ["content.js"]
+      "css": ["styles.css"],
+      "js": [
+        "constants.js",
+        "utils.js",
+        "contentGenerator.js",
+        "content.js"
+      ]
     }
   ],
   "background": {
     "service_worker": "background.js"
-  },
-  "web_accessible_resources": [{
-    "resources": [
-      "icons/*"
-    ],
-    "matches": ["*://studio.youtube.com/*"]
-  }]
+  }
 }
